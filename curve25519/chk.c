@@ -1,4 +1,3 @@
-// other files from wireguard
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +64,7 @@ void gen() {
 	printf("pub %s\n", pubStr);
 }
 #define PROT_VAL 0x6d30243e
-void exchange(char *mySecStr, char *peerPubStr) {
+void exchange(char *mySecStr, char *peerPubStr, char *out) {
 	int prot1 = PROT_VAL;
 	char mySec[CURVE25519_KEY_SIZE];
 	int prot2 = PROT_VAL;
@@ -77,6 +76,10 @@ void exchange(char *mySecStr, char *peerPubStr) {
 	int prot4 = PROT_VAL;
 	curve25519(shared, mySec, peerPub);
 	char sharedStr[2*CURVE25519_KEY_SIZE+1];
+	if (out != NULL) {
+		writehex(out, shared, CURVE25519_KEY_SIZE);
+		return;
+	}
 	int prot5 = PROT_VAL;	
 	writehex(sharedStr, shared, CURVE25519_KEY_SIZE);
 	printf("shared %s\n", sharedStr);
@@ -128,6 +131,28 @@ void testhex() {
 	printf("test done\n");
 }
 
+void test() {
+	char shared[65];
+	shared[64]='\0';
+	const char *a1 = "604fcd2580d18ec6e9391a8c1ca7f855a68e560633ec3e3ca10ce1a15a52f84c";
+	const char *a2 = "5669be909a1522fb9891383d335b498f4ee79e6943c826b3538270ccb1e47f57";
+	const char *b1 = "c892bb10a8bf3531fedb773cc650f5fb02294a27dc53ad441e791856bee82649";
+	const char *b2 = "37dd28bd0a4f76d814cee9d67f3a533f71a1d55737cf593c11a0eaceddf9f471";
+	const char *gold = "388b1d04fb3c4e0f8a86c4d392c90b1bf0bcbce134d10330133de22a81cde42d";
+	exchange(a1, a2, shared);
+	if (0 == strcmp(shared, gold)) {
+		printf("set:a pass\n");
+	} else {
+		printf("set:a fail %s\n", shared);
+	}
+	exchange(b1, b2, shared);
+	if (0 == strcmp(shared, gold)) {
+		printf("set:b pass\n");
+	} else {
+		printf("set:b fail %s\n", shared);
+	}
+}
+
 int main(int argc, char**argv) {
 	printf("main start\n");
 	if (argc == 1) {
@@ -135,10 +160,12 @@ int main(int argc, char**argv) {
 		return 0;
 	} else if (0 == strcmp(argv[1], "testhex")) {
 		testhex();
+	} else if (0 == strcmp(argv[1], "test")) {
+		test();
 	} else if (0 == strcmp(argv[1], "gen")) {
 		gen();
 	} else if (0 == strcmp(argv[1], "exchange")) {
-		exchange(argv[2], argv[3]);
+		exchange(argv[2], argv[3], NULL);
 	}
 	printf("main done\n");
 }
