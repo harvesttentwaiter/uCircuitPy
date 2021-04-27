@@ -1,0 +1,9 @@
+import features1
+import ubinascii
+pub=ubinascii.unhexlify('c2acd61aafc7ef8b7c98cf433289969a10af72f94f50ac5f28aaed3dab6429ca')
+sec=ubinascii.unhexlify('3045a8208b908626b555ff4cf9af0a7c6bb1821560329c60a94ff52fd3f2955a5e874dd57f43dee016adfcbd9741e134162af86cc34ed084535936b17c6b5dbb')
+gold=ubinascii.unhexlify('06468f4e23ff9450bf182b78b90e3458e40b1c13a2b591d488aa95698c50a1a9fde52b9602c6455ea47f51961fc70c0b35a7167591337efa3046af747bc95504')
+print(features1.sign(pub,sec,b'binky55'))
+print(features1.verify(pub,gold,b'binky55'))
+print(features1.verify(pub,gold,b'binky56'))
+
